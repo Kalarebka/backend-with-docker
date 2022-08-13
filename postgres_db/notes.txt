@@ -1,0 +1,57 @@
+docker start pg-docker
+docker exec -it pg-docker bash 
+su postgres
+psql
+\d
+
+SELECT user_account.username, event.name, event.date FROM user_account JOIN user_event ON user_account.id = user_event.user_id JOIN event on user_event.event_id = event.id;
+
+---------------------
+
+create volume for the database files
+
+A directory for volumes:
+mkdir -p $HOME/docker/volumes/postgres
+
+
+docker run --name pg-docker -e POSTGRES_PASSWORD=password12345 -d -p 5432:5432 -v $HOME/docker/volumes/postgres:/var/lib/postgresql/data postgres
+
+docker exec -it pg-docker bash 
+
+
+CREATE TABLE user_account(
+    id serial, 
+    username VARCHAR (32) UNIQUE NOT NULL, 
+    password VARCHAR (255) NOT NULL, 
+    email VARCHAR (128) UNIQUE NOT NULL, 
+    PRIMARY KEY(id)
+    );
+
+CREATE TABLE event(
+    id serial PRIMARY KEY,
+    name VARCHAR (128) NOT NULL,
+    time TIME NOT NULL,
+    date DATE NOT NULL,
+    place VARCHAR (128)
+);
+
+
+CREATE TABLE user_event(
+    user_id INT NOT NULL,
+    event_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user_account(id),
+    FOREIGN KEY (event_id) REFERENCES event(id),
+    PRIMARY KEY (user_id, event_id)
+);
+
+insert into user_account (username, password, email) values ('Eryk', 'password', 'eryk@gmail.com');
+insert into user_account (username, password, email) values ('Ika', 'password', 'ika@gmail.com');
+insert into event (name, time, date, place) values ('event', '12:30', '01-01-2022', 'place');
+insert into event (name, time, date, place) values ('event2', '12:35', '02-01-2022', 'place2');
+insert into user_event (user_id, event_id) values (1, 1);
+insert into user_event (user_id, event_id) values (1, 2);
+insert into user_event (user_id, event_id) values (2, 1);
+
+
+------------------------------------------------------------------------------------
+
