@@ -18,6 +18,9 @@ docker run --name pg-docker -e POSTGRES_PASSWORD=password12345 -d -p 5432:5432 -
 
 docker exec -it pg-docker bash 
 
+su postgres
+psql
+
 
 CREATE TABLE user_account(
     id serial, 
