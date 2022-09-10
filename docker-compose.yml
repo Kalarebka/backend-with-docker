@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   mongo_db:
-    image: mongo:latest
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: mongo_db
     env_file:
       - .env
     environment:
@@ -11,18 +14,20 @@ services:
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     volumes:
       - mongo:/data/db
-    ports:
-      - '27017:27017'
-  fastapi_app:
+
+  mongo_app:
     build:
-      dockerfile: Dockerfile
       context: .
-    env_file:
-      - ./app/.env
+      dockerfile: Dockerfile
+    container_name: mongo_app
+    volumes:
+      - ./app:/app
+    ports:
+      - 8000:8000
+    environment:
+      - MONGODB_URL=mongodb://fastapi:password12345@mongo_db:27017/fastapi
     depends_on:
       - mongo_db
-    ports:
-      - "8000:80"
 
 volumes:
   mongo:
